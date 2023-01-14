@@ -10,10 +10,9 @@ import (
 	"sync"
 
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/knownhosts"
 )
 
-type sshconf struct {
+type SshConf struct {
 	host string
 	user string
 	pass string
@@ -21,21 +20,20 @@ type sshconf struct {
 	sess *ssh.Session
 }
 
-func (sc *sshconf) Init(host, user, pass string) {
+func (sc *SshConf) Init(host, user, pass string) {
 	sc.host = host
 	sc.user = user
 	sc.pass = pass
 }
 
-func (sc sshconf) Connect() *ssh.Client {
+func (sc SshConf) Connect() *ssh.Client {
 	var hostkeyCallback ssh.HostKeyCallback
-	hostkeyCallback, err := knownhosts.New("~/.ssh/known_hosts")
+	//hostkeyCallback, err := knownhosts.New("~/.ssh/known_hosts")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	conf := &ssh.ClientConfig{
-		User:            sc.user,
-		HostKeyCallback: hostkeyCallback,
+		User: sc.user,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(sc.pass),
 		},
@@ -47,7 +45,7 @@ func (sc sshconf) Connect() *ssh.Client {
 	return sc.conn
 }
 
-func (sc *sshconf) Session() *ssh.Session {
+func (sc *SshConf) Session() *ssh.Session {
 	sess, err := sc.conn.NewSession()
 	sc.sess = sess
 	if err != nil {
@@ -56,14 +54,14 @@ func (sc *sshconf) Session() *ssh.Session {
 	return sc.sess
 }
 
-func (sc sshconf) StartSession(host, user, pass string) *ssh.Session {
+func (sc *SshConf) StartSession(host, user, pass string) *ssh.Session {
 	sc.Init(host, user, pass)
 	sc.Connect()
 	sess := sc.Session()
 	return sess
 }
 
-func (sc *sshconf) SendCommands(commands ...string) ([]byte, error) {
+func (sc *SshConf) SendCommands(commands ...string) ([]byte, error) {
 	modes := ssh.TerminalModes{
 		ssh.ECHO:          0,     // disable echoing
 		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
@@ -119,7 +117,7 @@ func (sc *sshconf) SendCommands(commands ...string) ([]byte, error) {
 	return output, nil
 }
 
-func (sc *sshconf) StreamCommand(command string) error {
+func (sc *SshConf) StreamCommand(command string) error {
 	modes := ssh.TerminalModes{
 		ssh.ECHO:          0,     // disable echoing
 		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
