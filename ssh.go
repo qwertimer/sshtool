@@ -28,7 +28,8 @@ func (sc *SshConf) Init(host, user, pass string) {
 
 func (sc SshConf) Connect() *ssh.Client {
 	conf := &ssh.ClientConfig{
-		User: sc.user,
+		User:            sc.user,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Auth: []ssh.AuthMethod{
 			ssh.Password(sc.pass),
 		},
