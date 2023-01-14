@@ -27,17 +27,13 @@ func (sc *SshConf) Init(host, user, pass string) {
 }
 
 func (sc SshConf) Connect() *ssh.Client {
-	var hostkeyCallback ssh.HostKeyCallback
-	//hostkeyCallback, err := knownhosts.New("~/.ssh/known_hosts")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
 	conf := &ssh.ClientConfig{
 		User: sc.user,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(sc.pass),
 		},
 	}
+	var err error
 	sc.conn, err = ssh.Dial("tcp", sc.host, conf)
 	if err != nil {
 		fmt.Println(err.Error())
